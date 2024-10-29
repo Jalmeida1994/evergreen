@@ -5,7 +5,7 @@ import yaml
 
 
 def make_dependabot_config(
-    ecosystem, group_dependencies, indent, schedule, schedule_day, labels
+    ecosystem, group_dependencies, indent, schedule, schedule_day, labels, registries
 ) -> str:
     """
     Make the dependabot configuration for a specific package ecosystem
@@ -17,6 +17,7 @@ def make_dependabot_config(
         schedule: the schedule to run dependabot ex: "daily"
         schedule_day: the day of the week to run dependabot ex: "monday" if schedule is "weekly"
         labels: the list of labels to be added to dependabot configuration
+        registries: the list of registries to be added to dependabot configuration
 
     Returns:
         str: the dependabot configuration for the package ecosystem
@@ -39,6 +40,13 @@ def make_dependabot_config(
             dependabot_config += f"""{indent}{indent}{indent}- \"{label}\"
 """
 
+    if registries:
+        dependabot_config += f"""{indent}{indent}registries:
+"""
+        for registry in registries:
+            dependabot_config += f"""{indent}{indent}{indent}- {registry}
+"""
+
     if group_dependencies:
         dependabot_config += f"""{indent}{indent}groups:
 {indent}{indent}{indent}production-dependencies:
@@ -47,6 +55,20 @@ def make_dependabot_config(
 {indent}{indent}{indent}{indent}dependency-type: 'development'
 """
     return dependabot_config
+
+
+def load_private_registry_config(file_path):
+    """
+    Load private registry configuration from a YAML file
+
+    Args:
+        file_path: the path to the YAML file containing private registry configuration
+
+    Returns:
+        dict: the private registry configuration
+    """
+    with open(file_path, "r") as file:
+        return yaml.safe_load(file)
 
 
 def build_dependabot_file(
@@ -58,6 +80,7 @@ def build_dependabot_file(
     schedule,
     schedule_day,
     labels,
+    private_registry_config=None,
 ) -> str | None:
     """
     Build the dependabot.yml file for a repo based on the repo contents
@@ -71,6 +94,7 @@ def build_dependabot_file(
         schedule: the schedule to run dependabot ex: "daily"
         schedule_day: the day of the week to run dependabot ex: "monday" if schedule is "daily"
         labels: the list of labels to be added to dependabot configuration
+        private_registry_config: the private registry configuration
 
     Returns:
         str: the dependabot.yml file for the repo
@@ -155,6 +179,7 @@ updates:
                     # add one before adding a new language config to the file
                     if dependabot_file and dependabot_file[-1] != "\n":
                         dependabot_file += "\n"
+                    registries = private_registry_config.get(manager, [])
                     dependabot_file += make_dependabot_config(
                         manager,
                         group_dependencies,
@@ -162,6 +187,7 @@ updates:
                         schedule,
                         schedule_day,
                         labels,
+                        registries,
                     )
                     break
             except github3.exceptions.NotFoundError:
@@ -173,6 +199,7 @@ updates:
             for file in repo.directory_contents("/"):
                 if file[0].endswith(".tf"):
                     package_managers_found["terraform"] = True
+                    registries = private_registry_config.get("terraform", [])
                     dependabot_file += make_dependabot_config(
                         "terraform",
                         group_dependencies,
@@ -180,6 +207,7 @@ updates:
                         schedule,
                         schedule_day,
                         labels,
+                        registries,
                     )
                     break
         except github3.exceptions.NotFoundError:
@@ -189,6 +217,7 @@ updates:
             for file in repo.directory_contents(".github/workflows"):
                 if file[0].endswith(".yml") or file[0].endswith(".yaml"):
                     package_managers_found["github-actions"] = True
+                    registries = private_registry_config.get("github-actions", [])
                     dependabot_file += make_dependabot_config(
                         "github-actions",
                         group_dependencies,
@@ -196,6 +225,7 @@ updates:
                         schedule,
                         schedule_day,
                         labels,
+                        registries,
                     )
                     break
         except github3.exceptions.NotFoundError:

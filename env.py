@@ -154,6 +154,7 @@ def get_env_vars(
         schedule_day (str): The day of the week to run the action on if schedule is daily
         team_name (str): The team to search for repositories in
         labels (list[str]): A list of labels to be added to dependabot configuration
+        private_registry_config (str): The path to the private registry configuration file
     """
 
     if not test:
@@ -337,6 +338,8 @@ Please enable it by merging this pull request so that we can keep our dependenci
     if labels_str:
         labels_list = [label.lower().strip() for label in labels_str.split(",")]
 
+    private_registry_config = os.getenv("PRIVATE_REGISTRY_CONFIG", "")
+
     return (
         organization,
         repositories_list,
@@ -365,4 +368,5 @@ Please enable it by merging this pull request so that we can keep our dependenci
         schedule_day,
         team_name,
         labels_list,
+        private_registry_config,
     )
