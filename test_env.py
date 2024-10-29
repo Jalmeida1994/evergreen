@@ -35,6 +35,7 @@ class TestEnv(unittest.TestCase):
             "SCHEDULE",
             "SCHEDULE_DAY",
             "LABELS",
+            "PRIVATE_REGISTRY_CONFIG",
         ]
         for key in env_keys:
             if key in os.environ:
@@ -86,6 +87,7 @@ class TestEnv(unittest.TestCase):
             "",  # schedule_day
             None,  # team_name
             [],  # labels
+            "",  # private_registry_config
         )
         result = get_env_vars(True)
         self.assertEqual(result, expected_result)
@@ -140,6 +142,7 @@ class TestEnv(unittest.TestCase):
             "",  # schedule_day
             None,  # team_name
             [],  # labels
+            "",  # private_registry_config
         )
         result = get_env_vars(True)
         self.assertEqual(result, expected_result)
@@ -251,6 +254,7 @@ class TestEnv(unittest.TestCase):
             "",  # schedule_day
             None,  # team_name
             [],  # labels
+            "",  # private_registry_config
         )
         result = get_env_vars(True)
         self.assertEqual(result, expected_result)
@@ -307,6 +311,7 @@ class TestEnv(unittest.TestCase):
             "",  # schedule_day
             "engineering",  # team_name
             [],  # labels
+            "",  # private_registry_config
         )
         result = get_env_vars(True)
         self.assertEqual(result, expected_result)
@@ -380,6 +385,7 @@ we can keep our dependencies up to date and secure.",
             "",  # schedule_day
             None,  # team_name
             [],  # labels
+            "",  # private_registry_config
         )
         result = get_env_vars(True)
         self.assertEqual(result, expected_result)
@@ -425,6 +431,7 @@ we can keep our dependencies up to date and secure.",
             "",  # schedule_day
             None,  # team_name
             [],  # labels
+            "",  # private_registry_config
         )
         result = get_env_vars(True)
         self.assertEqual(result, expected_result)
@@ -484,6 +491,7 @@ we can keep our dependencies up to date and secure.",
             "",  # schedule_day
             None,  # team_name
             [],  # labels
+            "",  # private_registry_config
         )
         result = get_env_vars(True)
         self.assertEqual(result, expected_result)
@@ -572,6 +580,7 @@ we can keep our dependencies up to date and secure.",
             "",  # schedule_day
             None,  # team_name
             [],  # labels
+            "",  # private_registry_config
         )
         result = get_env_vars(True)
         self.assertEqual(result, expected_result)
@@ -617,6 +626,7 @@ we can keep our dependencies up to date and secure.",
             "",  # schedule_day
             None,  # team_name
             [],  # labels
+            "",  # private_registry_config
         )
         result = get_env_vars(True)
         self.assertEqual(result, expected_result)
@@ -663,6 +673,7 @@ we can keep our dependencies up to date and secure.",
             "",  # schedule_day
             None,  # team_name
             [],  # labels
+            "",  # private_registry_config
         )
         result = get_env_vars(True)
         self.assertEqual(result, expected_result)
@@ -709,6 +720,7 @@ we can keep our dependencies up to date and secure.",
             "",  # schedule_day
             None,  # team_name
             [],  # labels
+            "",  # private_registry_config
         )
         result = get_env_vars(True)
         self.assertEqual(result, expected_result)
@@ -785,6 +797,7 @@ we can keep our dependencies up to date and secure.",
             "",  # schedule_day
             None,  # team_name
             [],  # labels
+            "",  # private_registry_config
         )
         result = get_env_vars(True)
         self.assertEqual(result, expected_result)
@@ -832,6 +845,7 @@ we can keep our dependencies up to date and secure.",
             "",  # schedule_day
             None,  # team_name
             [],  # labels
+            "",  # private_registry_config
         )
         result = get_env_vars(True)
         self.assertEqual(result, expected_result)
@@ -878,6 +892,7 @@ we can keep our dependencies up to date and secure.",
             "",  # schedule_day
             None,  # team_name
             [],  # labels
+            "",  # private_registry_config
         )
         result = get_env_vars(True)
         self.assertEqual(result, expected_result)
@@ -925,6 +940,7 @@ we can keep our dependencies up to date and secure.",
             "",  # schedule_day
             None,  # team_name
             [],  # labels
+            "",  # private_registry_config
         )
         result = get_env_vars(True)
         self.assertEqual(result, expected_result)
@@ -1061,6 +1077,7 @@ we can keep our dependencies up to date and secure.",
             "tuesday",  # schedule_day
             None,  # team_name
             [],  # labels
+            "",  # private_registry_config
         )
         result = get_env_vars(True)
         self.assertEqual(result, expected_result)
@@ -1164,6 +1181,7 @@ we can keep our dependencies up to date and secure.",
             "",  # schedule_day
             None,  # team_name
             ["dependencies"],  # labels
+            "",  # private_registry_config
         )
         result = get_env_vars(True)
         self.assertEqual(result, expected_result)
@@ -1209,6 +1227,7 @@ we can keep our dependencies up to date and secure.",
             "",  # schedule_day
             None,  # team_name
             ["dependencies", "test", "test2"],  # labels
+            "",  # private_registry_config
         )
         result = get_env_vars(True)
         self.assertEqual(result, expected_result)

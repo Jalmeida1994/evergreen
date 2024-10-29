@@ -125,6 +125,7 @@ The needed GitHub app permissions are the following:
 | `SCHEDULE`                 | False                                           | `weekly`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | Schedule interval by which to check for dependency updates via Dependabot. Allowed values are `daily`, `weekly`, or `monthly`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | `SCHEDULE_DAY`             | False                                           | ''                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | Scheduled day by which to check for dependency updates via Dependabot. Allowed values are days of the week full names (i.e., `monday`)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | `LABELS`                   | False                                           | ""                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | A comma separated list of labels that should be added to pull requests opened by dependabot.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| `PRIVATE_REGISTRY_CONFIG`  | False                                           | ""                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | The path to the YAML file containing private registry configuration.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 
 ### Example workflows
 
@@ -229,6 +230,60 @@ jobs:
           ORGANIZATION: your_organization
           UPDATE_EXISTING: True
           GROUP_DEPENDENCIES: True
+```
+
+#### Using private registry configuration
+
+```yaml
+name: Evergreen
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "3 2 * * 6"
+
+permissions:
+  contents: read
+
+jobs:
+  evergreen:
+    name: "Create dependabot.yml"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Run evergreen action for tools
+        uses: github/evergreen@v1
+        env:
+          GH_APP_ID: ${{ secrets.GH_APP_ID }}
+          GH_APP_INSTALLATION_ID: ${{ secrets.GH_APP_INSTALLATION_ID }}
+          GH_APP_PRIVATE_KEY: ${{ secrets.GH_APP_PRIVATE_KEY }}
+          # GITHUB_APP_ENTERPRISE_ONLY: True --> Set to true when created GHE App needs to communicate with GHE api
+          GH_ENTERPRISE_URL: ${{ github.server_url }}
+          # GH_TOKEN: ${{ steps.app-token.outputs.token }} --> the token input is not used if the github app inputs are set
+          ORGANIZATION: your_organization
+          UPDATE_EXISTING: True
+          GROUP_DEPENDENCIES: True
+          PRIVATE_REGISTRY_CONFIG: path/to/private_registry_config.yml
+```
+
+### Example private registry configuration file
+
+```yaml
+registries:
+  npm:
+    type: npm-registry
+    url: https://yourrepository.com/npm/
+    username: username
+    password: ${{secrets.password}}
+  maven:
+    type: maven-repository
+    url: https://yourrepository.com/maven/
+    username: username
+    password: ${{secrets.password}}
+  docker:
+    type: docker-registry
+    url: https://yourrepository.com/docker/
+    username: username
+    password: ${{secrets.password}}
 ```
 
 ## Local usage without Docker

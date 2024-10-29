@@ -6,7 +6,7 @@ from unittest.mock import MagicMock
 
 import github3
 import yaml
-from dependabot_file import add_existing_ecosystem_to_exempt_list, build_dependabot_file
+from dependabot_file import add_existing_ecosystem_to_exempt_list, build_dependabot_file, load_private_registry_config
 
 
 class TestDependabotFile(unittest.TestCase):
@@ -591,7 +591,7 @@ updates:
         repo = MagicMock()
         filename_list = ["Gemfile", "Gemfile.lock"]
 
-        for filename in filename_list:
+        for filename in filename list:
             repo.file_contents.side_effect = lambda f, filename=filename: f == filename
             expected_result = """---
 version: 2
@@ -614,6 +614,85 @@ updates:
                 "weekly",
                 "",
                 ["dependencies", "test1", "test2"],
+            )
+            self.assertEqual(result, expected_result)
+
+    def test_load_private_registry_config(self):
+        """Test that the private registry configuration is loaded correctly from a YAML file"""
+        file_path = "test_private_registry_config.yml"
+        with open(file_path, "w") as file:
+            file.write(
+                """
+                npm:
+                  type: npm-registry
+                  url: https://yourrepository.com/npm/
+                  username: username
+                  password: ${{secrets.password}}
+                maven:
+                  type: maven-repository
+                  url: https://yourrepository.com/maven/
+                  username: username
+                  password: ${{secrets.password}}
+                docker:
+                  type: docker-registry
+                  url: https://yourrepository.com/docker/
+                  username: username
+                  password: ${{secrets.password}}
+                """
+            )
+
+        expected_result = {
+            "npm": {
+                "type": "npm-registry",
+                "url": "https://yourrepository.com/npm/",
+                "username": "username",
+                "password": "${{secrets.password}}",
+            },
+            "maven": {
+                "type": "maven-repository",
+                "url": "https://yourrepository.com/maven/",
+                "username": "username",
+                "password": "${{secrets.password}}",
+            },
+            "docker": {
+                "type": "docker-registry",
+                "url": "https://yourrepository.com/docker/",
+                "username": "username",
+                "password": "${{secrets.password}}",
+            },
+        }
+
+        result = load_private_registry_config(file_path)
+        self.assertEqual(result, expected_result)
+
+    def test_build_dependabot_file_with_private_registry_config(self):
+        """Test that the dependabot.yml file is built correctly with private registry configuration"""
+        repo = MagicMock()
+        filename_list = ["package.json", "package-lock.json", "yarn.lock"]
+
+        private_registry_config = {
+            "npm": {
+                "type": "npm-registry",
+                "url": "https://yourrepository.com/npm/",
+                "username": "username",
+                "password": "${{secrets.password}}",
+            }
+        }
+
+        for filename in filename_list:
+            repo.file_contents.side_effect = lambda f, filename=filename: f == filename
+            expected_result = """---
+version: 2
+updates:
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+    registries:
+      - npm
+"""
+            result = build_dependabot_file(
+                repo, False, [], {}, None, "weekly", "", [], private_registry_config
             )
             self.assertEqual(result, expected_result)
 
